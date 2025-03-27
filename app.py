@@ -12,11 +12,9 @@ from langchain.chains import LLMChain
 # Setting page config
 st.set_page_config(page_title="LLM Risk Auditor", layout="wide")
 
-# Model definitions (simplified from your original code)
-class LogRiskAssessment:
-    def __init__(self, risk_level: str, reason: str):
-        self.risk_level = risk_level
-        self.reason = reason
+# Function to create risk assessment dictionary instead of class
+def create_risk_assessment(risk_level: str, reason: str):
+    return {"risk_level": risk_level, "reason": reason}
 
 # Core Functions
 def get_policy_context():
@@ -169,7 +167,8 @@ def parse_response(response, logs_count):
                     log_idx = int(match.group(1))
                     risk_level = match.group(2).capitalize()  # Normalize to Title Case
                     reason = match.group(3).strip()
-                    log_assessments[log_idx] = LogRiskAssessment(risk_level=risk_level, reason=reason)
+                    # Use dictionary instead of class instance
+                    log_assessments[log_idx] = create_risk_assessment(risk_level=risk_level, reason=reason)
                     break
     
     # Process suggestions
@@ -205,7 +204,8 @@ def parse_response(response, logs_count):
     # Fill in any missing log assessments with defaults
     for i in range(logs_count):
         if i not in log_assessments:
-            log_assessments[i] = LogRiskAssessment(risk_level="Low", reason="Standard business usage")
+            # Use dictionary instead of class instance
+            log_assessments[i] = create_risk_assessment(risk_level="Low", reason="Standard business usage")
     
     return {
         "summary": summary,
@@ -362,8 +362,9 @@ with tab1:
                 # Add risk assessment if available
                 if i in result["log_assessments"]:
                     assessment = result["log_assessments"][i]
-                    risk_level = assessment.risk_level
-                    reason = assessment.reason
+                    # Access dictionary properties instead of class properties
+                    risk_level = assessment["risk_level"]
+                    reason = assessment["reason"]
                     
                     # Add risk icon based on level
                     if risk_level == "High":
