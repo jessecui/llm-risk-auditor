@@ -1,0 +1,28 @@
+{
+  "logs": [
+    {
+      "user": "data_scientist_1",
+      "prompt": "Summarize the quarterly financial results for our company",
+      "tokens": 450,
+      "model": "gpt-4"
+    },
+    {
+      "user": "marketing_bot",
+      "prompt": "Write a marketing email for our new product launch",
+      "tokens": 1200,
+      "model": "gpt-3.5-turbo"
+    },
+    {
+      "user": "support_agent",
+      "prompt": "The customer's SSN is 123-45-6789 and they need help with their account",
+      "tokens": 120,
+      "model": "gpt-3.5-turbo"
+    },
+    {
+      "user": "data_scientist_1",
+      "prompt": "Summarize the quarterly financial results for our company",
+      "tokens": 460,
+      "model": "gpt-4"
+    }
+  ]
+}
