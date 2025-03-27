@@ -13,8 +13,6 @@ pinned: false
 
 A tool that analyzes LLM usage logs to identify security risks and policy violations.
 
-[Open in Hugging Face Spaces](https://huggingface.co/spaces/jessecui/llm-risk-auditor)
-
 ## What it does
 
 This project audits how people are using LLMs in your organization. It analyzes prompt logs, flags risky behavior, and checks against your acceptable use policies.
