@@ -2,6 +2,8 @@
 
 A tool that analyzes LLM usage logs to identify security risks and policy violations.
 
+🌐 [Live Demo](https://llm-risk-auditor.onrender.com/)
+
 ## What it does
 
 This project audits how people are using LLMs in your organization. It analyzes prompt logs, flags risky behavior, and checks against your acceptable use policies.
