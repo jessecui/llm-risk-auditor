@@ -1,4 +1,4 @@
-# LLM Risk Auditor
+# LLM Usage Risk Auditor API
 
 A tool that analyzes LLM usage logs to identify security risks and policy violations.
 

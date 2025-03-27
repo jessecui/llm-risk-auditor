@@ -3,11 +3,14 @@ import json
 import requests
 import pandas as pd
 from io import StringIO
+import os
+
+API_URL = os.environ.get("API_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="LLM Risk Auditor", layout="wide")
 
 st.title("LLM Risk Auditor")
-st.markdown("### Analyze how your organization uses LLMs")
+st.markdown("### Analyze how safely your organization uses LLMs")
 
 # Create tabs
 tab1, tab2 = st.tabs(["Audit Logs", "About"])
@@ -21,7 +24,7 @@ with tab1:
         # Option to use sample data or upload - added Very Safe option
         input_option = st.radio(
             "Choose input method:",
-            ["Use Very Safe Sample", "Use Moderately Safe Sample", "Use High-Risk Sample", "Upload JSON", "Paste JSON"]
+            ["Use Safe Sample", "Use Moderately Safe Sample", "Use High-Risk Sample", "Upload JSON", "Paste JSON"]
         )
         
         # Very safe sample - completely benign business usage
@@ -54,7 +57,7 @@ with tab1:
             ]
         }
         
-        if input_option == "Use Very Safe Sample":
+        if input_option == "Use Safe Sample":
             st.json(very_safe_sample)
             input_data = very_safe_sample
             st.success("✅ This sample contains ideal, low-risk usage patterns with small token counts and clear business purpose.")
@@ -89,7 +92,7 @@ with tab1:
             with st.spinner("Analyzing logs..."):
                 try:
                     # Call your FastAPI endpoint
-                    response = requests.post("http://localhost:8000/audit", json=input_data)
+                    response = requests.post(f"{API_URL}/audit", json=input_data)
                     response.raise_for_status()
                     result = response.json()
                     
@@ -186,7 +189,7 @@ with tab1:
 
 with tab2:
     st.markdown("""
-    ## About LLM Risk Auditor
+    ## About LLM Usage Risk Auditor API
     
     This tool helps organizations monitor and audit their LLM usage to:
     
@@ -198,10 +201,10 @@ with tab2:
     
     - **FastAPI Backend**: Processes audit requests
     - **LangChain**: Orchestrates the audit logic
-    - **RAG with FAISS**: Grounds recommendations in policy documents
+    - **RAG with LlamaIndex and FAISS**: Grounds recommendations in policy documents
     - **OpenAI Integration**: Provides analysis capabilities
     
-    ### Project by [Your Name]
+    ### Project by Jesse Cui
     
     Built as a demonstration of RAG-enhanced LLM applications for enterprise use.
     """)
