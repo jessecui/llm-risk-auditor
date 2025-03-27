@@ -3,8 +3,7 @@ import json
 import pandas as pd
 import os
 import re
-from typing import List, Dict, Optional
-from pydantic import BaseModel, Field
+from typing import Dict, List
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
@@ -12,9 +11,11 @@ from langchain.chains import LLMChain
 # Setting page config
 st.set_page_config(page_title="LLM Risk Auditor", layout="wide")
 
-# Function to create risk assessment dictionary instead of class
-def create_risk_assessment(risk_level: str, reason: str):
-    return {"risk_level": risk_level, "reason": reason}
+# Custom JSON encoder to handle any non-serializable objects
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        # Convert any custom objects to dictionaries
+        return {k: v for k, v in obj.__dict__.items()} if hasattr(obj, '__dict__') else str(obj)
 
 # Core Functions
 def get_policy_context():
@@ -80,40 +81,6 @@ def load_prompt_template():
     - Only list actual flags if violations exist, otherwise state no violations found
     """
 
-def audit_logs(logs):
-    """Process logs and return audit results"""
-    # Format logs for the prompt
-    logs_text = ""
-    for i, log in enumerate(logs):
-        logs_text += f"LOG {i}: User: {log['user']}, Prompt: '{log['prompt']}', Tokens: {log['tokens']}, Model: {log['model']}\n"
-    
-    # Get policy context
-    policy_context = get_policy_context()
-    
-    # Create the prompt
-    template = load_prompt_template()
-    prompt = PromptTemplate(
-        template=template,
-        input_variables=["logs", "policy_context"]
-    )
-    
-    # Setup the LLM
-    api_key = st.secrets.get("OPENAI_API_KEY", "")
-    if not api_key:
-        st.error("⚠️ OpenAI API key not found. Please add it in your Hugging Face Space secrets.")
-        return None
-    
-    llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo", api_key=api_key)
-    chain = LLMChain(llm=llm, prompt=prompt)
-    
-    # Get the response
-    try:
-        raw_response = chain.run(logs=logs_text, policy_context=policy_context)
-        return parse_response(raw_response, len(logs))
-    except Exception as e:
-        st.error(f"Error processing logs: {str(e)}")
-        return None
-
 def parse_response(response, logs_count):
     """Parse the LLM response into structured data"""
     # Parse the response based on sections
@@ -167,8 +134,11 @@ def parse_response(response, logs_count):
                     log_idx = int(match.group(1))
                     risk_level = match.group(2).capitalize()  # Normalize to Title Case
                     reason = match.group(3).strip()
-                    # Use dictionary instead of class instance
-                    log_assessments[log_idx] = create_risk_assessment(risk_level=risk_level, reason=reason)
+                    # Use a simple dictionary
+                    log_assessments[log_idx] = {
+                        "risk_level": risk_level,
+                        "reason": reason
+                    }
                     break
     
     # Process suggestions
@@ -204,8 +174,11 @@ def parse_response(response, logs_count):
     # Fill in any missing log assessments with defaults
     for i in range(logs_count):
         if i not in log_assessments:
-            # Use dictionary instead of class instance
-            log_assessments[i] = create_risk_assessment(risk_level="Low", reason="Standard business usage")
+            # Use a simple dictionary
+            log_assessments[i] = {
+                "risk_level": "Low",
+                "reason": "Standard business usage"
+            }
     
     return {
         "summary": summary,
@@ -214,6 +187,40 @@ def parse_response(response, logs_count):
         "suggestions": suggestions,
         "log_assessments": log_assessments
     }
+
+def audit_logs(logs):
+    """Process logs and return audit results"""
+    # Format logs for the prompt
+    logs_text = ""
+    for i, log in enumerate(logs):
+        logs_text += f"LOG {i}: User: {log['user']}, Prompt: '{log['prompt']}', Tokens: {log['tokens']}, Model: {log['model']}\n"
+    
+    # Get policy context
+    policy_context = get_policy_context()
+    
+    # Create the prompt
+    template = load_prompt_template()
+    prompt = PromptTemplate(
+        template=template,
+        input_variables=["logs", "policy_context"]
+    )
+    
+    # Setup the LLM
+    api_key = st.secrets.get("OPENAI_API_KEY", "")
+    if not api_key:
+        st.error("⚠️ OpenAI API key not found. Please add it in your Hugging Face Space secrets.")
+        return None
+    
+    llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo", api_key=api_key)
+    chain = LLMChain(llm=llm, prompt=prompt)
+    
+    # Get the response
+    try:
+        raw_response = chain.run(logs=logs_text, policy_context=policy_context)
+        return parse_response(raw_response, len(logs))
+    except Exception as e:
+        st.error(f"Error processing logs: {str(e)}")
+        return None
 
 # Sample data
 very_safe_sample = {
@@ -343,10 +350,15 @@ with tab1:
                 for suggestion in result["suggestions"]:
                     st.success(suggestion)
 
-            # Raw response viewer
+            # Raw response viewer - use the custom encoder
             with st.expander("View Raw API Response"):
                 st.subheader("Raw JSON Response")
-                st.code(json.dumps(result, indent=2), language="json")
+                try:
+                    json_str = json.dumps(result, indent=2, cls=CustomJSONEncoder)
+                    st.code(json_str, language="json")
+                except Exception as e:
+                    st.error(f"Error serializing result: {str(e)}")
+                    st.code(str(result))
                 
                 # Optionally add the request too
                 st.subheader("Request Payload")
@@ -362,7 +374,7 @@ with tab1:
                 # Add risk assessment if available
                 if i in result["log_assessments"]:
                     assessment = result["log_assessments"][i]
-                    # Access dictionary properties instead of class properties
+                    # Access dictionary properties
                     risk_level = assessment["risk_level"]
                     reason = assessment["reason"]
                     
