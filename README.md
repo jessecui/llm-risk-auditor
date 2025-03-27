@@ -1,14 +1,3 @@
----
-title: LLM Risk Auditor
-emoji: 🔍
-colorFrom: blue
-colorTo: indigo
-sdk: streamlit
-sdk_version: 1.32.0
-app_file: app.py
-pinned: false
----
-
 # LLM Risk Auditor
 
 A tool that analyzes LLM usage logs to identify security risks and policy violations.
