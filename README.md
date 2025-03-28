@@ -1,38 +1,38 @@
 # LLM Usage Risk Auditor API
 
-A tool that analyzes LLM usage logs to identify security risks and policy violations.
+A tool for analyzing LLM usage logs to identify security risks and policy violations.
 
 🌐 [Live Demo](https://llm-risk-auditor.onrender.com/)
 
 ## What it does
 
-This project audits how people are using LLMs in your organization. It analyzes prompt logs, flags risky behavior, and checks against your acceptable use policies.
+This project audits LLM usage based on prompt logs and flags risky behavior according to acceptable use policies.
 
-I built this to help solve the problem of ensuring safe and responsible AI use within teams, especially as more employees get access to powerful models like GPT-4.
+This application addresses the critical challenge of ensuring safe and responsible AI use across organizations, particularly as access to powerful language models becomes more widespread.
 
 ## Features
 
-- Detect common security risks like credential leaks and PII exposure
-- Flag inappropriate usage patterns that violate policies
-- Show risk levels for each prompt (Low/Medium/High)
-- RAG-based analysis that grounds recommendations in your policies
-- Simple visualization dashboard
+- Comprehensive security risk detection including credential leaks and PII exposure
+- Policy violation monitoring and flagging
+- Risk level assessment for each prompt (Low/Medium/High)
+- RAG-based analysis with policy-grounded recommendations
+- Interactive visualization dashboard
 
 ## Setup
 
 ```bash
-# Clone the repo
+# Clone the repository
 git clone https://github.com/yourusername/llm-risk-auditor.git
 cd llm-risk-auditor
 
-# Set up venv
+# Set up virtual environment
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Add your OpenAI API key
+# Configure OpenAI API key
 echo "OPENAI_API_KEY=your-key-here" > .env
 ```
 
@@ -52,13 +52,13 @@ Then open http://localhost:8501 in your browser.
 
 ## How to use it
 
-1. Choose one of the sample datasets or upload your own logs
-2. Hit "Run Audit"
-3. See the results, including flagged issues and suggestions
+1. Select a sample dataset or upload custom logs
+2. Initiate the audit process
+3. Review results, including flagged issues and recommendations
 
 ## API Usage
 
-You can also use it programmatically:
+The API can be integrated programmatically:
 
 ```python
 import requests
@@ -88,10 +88,10 @@ print(response.json())
 
 ## Future work
 
-I'd like to add:
-- Support for more model providers
+Planned enhancements include:
+- Extended model provider support
 - Historical audit tracking
-- Real-time monitoring
+- Real-time monitoring capabilities
 - Custom policy editor
 
 ## License
